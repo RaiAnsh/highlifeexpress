@@ -3,11 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>About Us – High Life Express</title>
+<title>Contact Us – High Life Express</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+<script>if(sessionStorage.getItem('hle_age_verified')==='true'){document.body.classList.add('age-verified');}</script>
 
 <!-- AGE GATE -->
 <div id="age-gate">
@@ -61,39 +62,45 @@
 
   <!-- Page Hero -->
   <div class="page-hero">
-    <h1>About High Life Express</h1>
-    <p>Your licensed Ontario source for premium, hand-selected cannabis — delivered with care.</p>
+    <h1>Get In Touch</h1>
+    <p>Questions about a strain, an order, or delivery? We'd love to hear from you.</p>
   </div>
 
   <div class="page-content">
     <div class="placeholder-note">
-      This page is a placeholder. Send over your business story, mission, and any team/photo details you'd like featured here, and we'll get it finalized.
+      This page is a placeholder. Send us your real phone number, email, hours, and service area and we'll drop them in here — and connect the form below to send you real messages.
     </div>
 
-    <h2>Our Story</h2>
-    <p>High Life Express is a licensed cannabis dispensary proudly serving Ontario. We're passionate about connecting our customers with premium, hand-selected flower and products — sourced with quality and consistency in mind. Every strain in our catalog is chosen for its potency, flavor, and effect, so you always know what you're getting.</p>
-
-    <h2>Why Choose Us</h2>
     <div class="info-grid">
       <div class="info-card">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
-        <strong>Licensed &amp; Legal</strong>
-        <span>Fully licensed cannabis dispensary operating in Ontario</span>
+        <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        <strong>Phone</strong>
+        <span>Coming soon</span>
       </div>
       <div class="info-card">
-        <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-        <strong>Free Delivery</strong>
-        <span>Fast, discreet delivery on every order</span>
+        <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        <strong>Email</strong>
+        <span>Coming soon</span>
       </div>
       <div class="info-card">
-        <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 8v4l2 2"/></svg>
-        <strong>Fresh Drops Weekly</strong>
-        <span>New strains and products added regularly</span>
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <strong>Hours</strong>
+        <span>Coming soon</span>
+      </div>
+      <div class="info-card">
+        <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        <strong>Service Area</strong>
+        <span>Ontario, Canada</span>
       </div>
     </div>
 
-    <h2>Adults 19+ Only</h2>
-    <p>In accordance with Ontario law, all products and content on this site are intended exclusively for adults aged 19 and older. Please consume responsibly.</p>
+    <h2>Send Us a Message</h2>
+    <form class="contact-form" onsubmit="return submitContactForm(event)">
+      <input type="text" placeholder="Your Name" required>
+      <input type="email" placeholder="Your Email" required>
+      <textarea placeholder="How can we help?" required></textarea>
+      <button type="submit">Send Message</button>
+    </form>
   </div>
 
   <!-- Footer -->

@@ -1,0 +1,142 @@
+// Prisma schema — High Life Express
+// See /Users/rai/.claude/plans/lively-churning-bachman.md for the full architecture doc.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model AdminUser {
+  id           String   @id @default(cuid())
+  username     String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Category {
+  id        String    @id @default(cuid())
+  slug      String    @unique
+  name      String
+  iconKey   String?
+  sortOrder Int       @default(0)
+  active    Boolean   @default(true)
+  products  Product[]
+}
+
+enum StrainType {
+  INDICA
+  SATIVA
+  HYBRID
+  NA
+}
+
+enum FeaturedSection {
+  NEW_ARRIVALS
+  BEST_SELLERS
+  NONE
+}
+
+model Product {
+  id               String            @id @default(cuid())
+  name             String
+  slug             String            @unique
+  categoryId       String
+  category         Category          @relation(fields: [categoryId], references: [id])
+  strainType       StrainType        @default(NA)
+  thcPercent       Decimal?          @db.Decimal(4, 1)
+  effects          String[]
+  description      String            @db.Text
+  tags             String[]          @default([])
+  featuredSection  FeaturedSection   @default(NONE)
+  active           Boolean           @default(true)
+  sortOrder        Int               @default(0)
+  priceOptions     PriceOption[]
+  photos           ProductPhoto[]
+  reservationItems ReservationItem[]
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  @@index([categoryId])
+  @@index([active, sortOrder])
+}
+
+model PriceOption {
+  id                  String  @id @default(cuid())
+  productId           String
+  product             Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  label               String
+  priceCents          Int
+  compareAtPriceCents Int?
+  sortOrder           Int     @default(0)
+}
+
+model ProductPhoto {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url       String
+  publicId  String
+  altText   String?
+  isPrimary Boolean @default(false)
+  sortOrder Int     @default(0)
+}
+
+enum ReservationStatus {
+  NEW
+  CONFIRMED
+  READY_FOR_PICKUP
+  COMPLETED
+  CANCELLED
+}
+
+model Reservation {
+  id               String            @id @default(cuid())
+  customerName     String
+  phone            String
+  email            String?
+  preferredContact String?
+  notes            String?           @db.Text
+  status           ReservationStatus @default(NEW)
+  subtotalCents    Int
+  items            ReservationItem[]
+  ipAddress        String?
+  ipCountry        String?
+  ipRegion         String?
+  locationAttested Boolean           @default(false)
+  ageAttested      Boolean           @default(false)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  @@index([status, createdAt])
+}
+
+model ReservationItem {
+  id                 String      @id @default(cuid())
+  reservationId      String
+  reservation        Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  productId          String?
+  product            Product?    @relation(fields: [productId], references: [id], onDelete: SetNull)
+  productNameSnap    String
+  priceLabelSnap     String
+  unitPriceCentsSnap Int
+  qty                Int
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  message   String   @db.Text
+  createdAt DateTime @default(now())
+  handled   Boolean  @default(false)
+}
+
+model SiteSetting {
+  key   String @id
+  value String @db.Text
+}

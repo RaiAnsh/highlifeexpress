@@ -1,4 +1,5 @@
 function enterSite() {
+  sessionStorage.setItem('hle_age_verified', 'true');
   document.getElementById('age-gate').style.display = 'none';
   document.getElementById('site').style.display = 'block';
 }

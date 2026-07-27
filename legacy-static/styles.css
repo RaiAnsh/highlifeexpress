@@ -54,6 +54,8 @@
 
   /* ── SITE HIDDEN UNTIL AGE GATE PASSED ── */
   #site { display: none; }
+  body.age-verified #age-gate { display: none !important; }
+  body.age-verified #site { display: block !important; }
 
   /* ── PROMO BANNER ── */
   .promo-bar {
