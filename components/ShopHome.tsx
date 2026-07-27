@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useSite } from "@/lib/site-context";
 import { isOnSale } from "@/lib/pricing";
+import { splitStrainLine, type DealBanner } from "@/lib/marketing";
 import { ProductCard } from "./ProductCard";
 import { CategoryIcon } from "./CategoryIcon";
 import type { ProductCardData } from "@/lib/types";
@@ -34,11 +35,13 @@ export function ShopHome({
   newArrivals,
   bestSellers,
   promotionsEnabled,
+  dealBanners,
 }: {
   categories: Category[];
   newArrivals: ProductCardData[];
   bestSellers: ProductCardData[];
   promotionsEnabled: boolean;
+  dealBanners: DealBanner[];
 }) {
   const { searchTerm } = useSite();
   const [currentCategory, setCurrentCategory] = useState("all");
@@ -54,21 +57,26 @@ export function ShopHome({
     [bestSellers, currentCategory, searchTerm, promotionsEnabled]
   );
 
-  // Best Sellers only: products without a real photo yet get a random strain photo
-  // borrowed from the pool of already-uploaded photos, re-rolled on every page load.
-  const bestSellerFallbackPhotos = useMemo(() => {
+  // Products without a real photo yet get a random strain photo borrowed from the
+  // pool of already-uploaded photos, re-rolled on every page load, so nothing shows
+  // a blank placeholder while real photography is pending.
+  const fallbackPhotos = useMemo(() => {
     const pool = [...newArrivals, ...bestSellers]
       .map((p) => p.imageUrl)
       .filter((url): url is string => Boolean(url));
     const map = new Map<string, string>();
     if (pool.length > 0) {
-      bestSellers.forEach((p) => {
+      [...newArrivals, ...bestSellers].forEach((p) => {
         if (!p.imageUrl) map.set(p.id, pool[Math.floor(Math.random() * pool.length)]);
       });
     }
     return map;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  function withFallbackPhoto(product: ProductCardData): ProductCardData {
+    return product.imageUrl ? product : { ...product, imageUrl: fallbackPhotos.get(product.id) ?? null };
+  }
 
   const totalVisible = filteredNewArrivals.length + filteredBestSellers.length;
 
@@ -104,86 +112,48 @@ export function ShopHome({
       )}
 
       {/* Deal Banners */}
-      <div className="hero-grid">
-        <div className="hero-card hero-card-1">
-          <div className="eyebrow">Limited Deal</div>
-          <h2>3oz for<br />$140</h2>
-          <p>+ 14g FREE + 6pc edible FREE. Hand-selected Indica, Sativa &amp; Hybrid strains.</p>
-          <div className="hero-deal-strains">
-            <div><strong>H</strong> Zesty Citrus &middot; Cookie Cream &middot; Oreo</div>
-            <div><strong>I</strong> Blueberry Kush &middot; Rainbow Sherbet &middot; Mars OG &middot; UK Cheese</div>
-          </div>
-          <p className="hero-deal-limit">Limit 1oz per customer</p>
-          <div className="hero-deal-badges">
-            <span className="hero-deal-badge">Quality BUDS &#10003;</span>
-            <span className="hero-deal-badge">Free Delivery &#10003;</span>
-            <span className="hero-deal-badge">Cash &amp; e-Transfer &#10003;</span>
-          </div>
-          <button className="hero-btn hero-btn-1" onClick={() => shopNow("new-arrivals", "deal3oz140")}>
-            Shop Now
-            <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
-          </button>
+      {dealBanners.length > 0 && (
+        <div className="hero-grid">
+          {dealBanners.map((banner, i) => {
+            const variant = (i % 4) + 1;
+            return (
+              <div className={`hero-card hero-card-${variant}`} key={i}>
+                <div className="eyebrow">{banner.eyebrow}</div>
+                <h2>
+                  {banner.titleLine1}
+                  <br />
+                  {banner.titleLine2}
+                </h2>
+                <p>{banner.description}</p>
+                {banner.strainLines.length > 0 && (
+                  <div className="hero-deal-strains">
+                    {banner.strainLines.map((line, j) => {
+                      const { prefix, items } = splitStrainLine(line);
+                      return (
+                        <div key={j}>
+                          {prefix && <strong>{prefix}</strong>} {items.join(" \u00b7 ")}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+                {banner.limitText && <p className="hero-deal-limit">{banner.limitText}</p>}
+                {banner.badges.length > 0 && (
+                  <div className="hero-deal-badges">
+                    {banner.badges.map((b, k) => (
+                      <span className="hero-deal-badge" key={k}>{b} &#10003;</span>
+                    ))}
+                  </div>
+                )}
+                <button className={`hero-btn hero-btn-${variant}`} onClick={() => shopNow("new-arrivals", banner.dealTag || "all")}>
+                  {banner.buttonLabel || "Shop Now"}
+                  <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+                </button>
+              </div>
+            );
+          })}
         </div>
-        <div className="hero-card hero-card-2">
-          <div className="eyebrow">Limited Deal</div>
-          <h2>3oz for<br />$190</h2>
-          <p>+ 14g FREE + 6pc edible FREE. Carefully hand-selected, high quality strains.</p>
-          <div className="hero-deal-strains">
-            <div><strong>S</strong> Pineapple Express &middot; Cherry Pie</div>
-            <div><strong>H</strong> Oreo &middot; Grape Cake &middot; Sour Grape</div>
-            <div><strong>I</strong> Blueberry Kush &middot; Pink Runtz &middot; Ice Cream Gelato &middot; Gorilla</div>
-          </div>
-          <p className="hero-deal-limit">Limit 1oz per customer</p>
-          <div className="hero-deal-badges">
-            <span className="hero-deal-badge">Quality BUDS &#10003;</span>
-            <span className="hero-deal-badge">Free Delivery &#10003;</span>
-            <span className="hero-deal-badge">Cash &amp; e-Transfer &#10003;</span>
-          </div>
-          <button className="hero-btn hero-btn-2" onClick={() => shopNow("new-arrivals", "deal3oz190")}>
-            Shop Now
-            <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
-          </button>
-        </div>
-        <div className="hero-card hero-card-3">
-          <div className="eyebrow">Limited Deal</div>
-          <h2>2oz for<br />$110</h2>
-          <p>+ free gift. Hand-selected Hybrid &amp; Indica strains.</p>
-          <div className="hero-deal-strains">
-            <div><strong>H</strong> Zesty Citrus &middot; Cookie Cream</div>
-            <div><strong>I</strong> Blueberry Kush &middot; Rainbow Sherbet &middot; Mars OG &middot; UK Cheese</div>
-          </div>
-          <p className="hero-deal-limit">Limit 1oz per customer</p>
-          <div className="hero-deal-badges">
-            <span className="hero-deal-badge">Quality BUDS &#10003;</span>
-            <span className="hero-deal-badge">Free Delivery &#10003;</span>
-            <span className="hero-deal-badge">Cash &amp; e-Transfer &#10003;</span>
-          </div>
-          <button className="hero-btn hero-btn-3" onClick={() => shopNow("new-arrivals", "deal2oz110")}>
-            Shop Now
-            <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
-          </button>
-        </div>
-        <div className="hero-card hero-card-4">
-          <div className="eyebrow">Limited Deal</div>
-          <h2>2 for<br />$140</h2>
-          <p>+ free gift. Carefully hand-selected, high quality strains.</p>
-          <div className="hero-deal-strains">
-            <div><strong>S</strong> Pineapple Express &middot; Cherry Pie</div>
-            <div><strong>H</strong> Oreo &middot; Grape Cake &middot; Sour Grape</div>
-            <div><strong>I</strong> Blueberry Kush &middot; Pink Runtz &middot; Ice Cream Gelato &middot; Gorilla</div>
-          </div>
-          <p className="hero-deal-limit">Limit 1oz per customer</p>
-          <div className="hero-deal-badges">
-            <span className="hero-deal-badge">Quality BUDS &#10003;</span>
-            <span className="hero-deal-badge">Free Delivery &#10003;</span>
-            <span className="hero-deal-badge">Cash &amp; e-Transfer &#10003;</span>
-          </div>
-          <button className="hero-btn hero-btn-4" onClick={() => shopNow("new-arrivals", "deal2oz140")}>
-            Shop Now
-            <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
-          </button>
-        </div>
-      </div>
+      )}
 
       {/* New Arrivals */}
       {filteredNewArrivals.length > 0 && (
@@ -194,7 +164,7 @@ export function ShopHome({
           </div>
           <div className="product-grid">
             {filteredNewArrivals.map((product, i) => (
-              <ProductCard key={product.id} product={product} imgClassIndex={(i % 6) + 1} promotionsEnabled={promotionsEnabled} />
+              <ProductCard key={product.id} product={withFallbackPhoto(product)} imgClassIndex={(i % 6) + 1} promotionsEnabled={promotionsEnabled} />
             ))}
           </div>
         </div>
@@ -214,14 +184,9 @@ export function ShopHome({
             <button onClick={() => shopNow("best-sellers", "all")}>View All &rarr;</button>
           </div>
           <div className="product-grid">
-            {filteredBestSellers.map((product, i) => {
-              const displayProduct = product.imageUrl
-                ? product
-                : { ...product, imageUrl: bestSellerFallbackPhotos.get(product.id) ?? null };
-              return (
-                <ProductCard key={product.id} product={displayProduct} imgClassIndex={(i % 6) + 1} promotionsEnabled={promotionsEnabled} />
-              );
-            })}
+            {filteredBestSellers.map((product, i) => (
+              <ProductCard key={product.id} product={withFallbackPhoto(product)} imgClassIndex={(i % 6) + 1} promotionsEnabled={promotionsEnabled} />
+            ))}
           </div>
         </div>
       )}

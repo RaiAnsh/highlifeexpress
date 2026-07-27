@@ -58,6 +58,9 @@ export function ProductForm({
   const [error, setError] = useState("");
   const [form, setForm] = useState<ProductFormInitial>(initial ?? EMPTY);
   const [slugTouched, setSlugTouched] = useState(mode === "edit");
+  const [dealTagsInput, setDealTagsInput] = useState(
+    (initial?.tags ?? []).filter((t) => t !== "NEW" && t !== "SALE").join(", ")
+  );
 
   function updatePriceRow(i: number, field: keyof PriceRow, value: string) {
     setForm((f) => ({
@@ -85,6 +88,12 @@ export function ProductForm({
     e.preventDefault();
     setError("");
 
+    const dealTags = dealTagsInput
+      .split(",")
+      .map((t) => t.trim().toUpperCase())
+      .filter(Boolean);
+    const allTags = [...new Set([...form.tags, ...dealTags])];
+
     const input = {
       name: form.name,
       slug: form.slug,
@@ -93,7 +102,7 @@ export function ProductForm({
       thcPercent: form.thcPercent,
       effects: form.effects,
       description: form.description,
-      tags: form.tags,
+      tags: allTags,
       featuredSection: form.featuredSection,
       active: form.active,
       sortOrder: form.sortOrder,
@@ -222,6 +231,18 @@ export function ProductForm({
         <div className="checkbox-row">
           <input type="checkbox" checked={form.tags.includes("SALE")} onChange={() => toggleTag("SALE")} id="tag-sale" />
           <label htmlFor="tag-sale" style={{ marginBottom: 0 }}>SALE</label>
+        </div>
+        <div style={{ marginTop: 10 }}>
+          <label>Deal Tags (comma-separated)</label>
+          <input
+            placeholder="DEAL3OZ140, DEAL2OZ110"
+            value={dealTagsInput}
+            onChange={(e) => setDealTagsInput(e.target.value)}
+          />
+          <p className="field-hint">
+            Match these exactly (case doesn&rsquo;t matter, spaces don&rsquo;t matter) to a Deal Tag set on a banner in{" "}
+            <strong>Marketing</strong> to have this product show up when that banner is clicked.
+          </p>
         </div>
       </div>
 

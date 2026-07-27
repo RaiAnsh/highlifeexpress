@@ -29,7 +29,16 @@ const productSchema = z.object({
     .string()
     .transform((v) => v.split(",").map((s) => s.trim()).filter(Boolean)),
   description: z.string().trim().min(1, "Description is required"),
-  tags: z.array(z.enum(["NEW", "SALE"])).default([]),
+  tags: z
+    .array(
+      z
+        .string()
+        .trim()
+        .toUpperCase()
+        .max(30)
+        .regex(/^[A-Z0-9]+$/, "Tags must be letters/numbers only, no spaces")
+    )
+    .default([]),
   featuredSection: z.enum(["NEW_ARRIVALS", "BEST_SELLERS", "NONE"]).default("NONE"),
   active: z.coerce.boolean().default(true),
   sortOrder: z.coerce.number().int().default(0),

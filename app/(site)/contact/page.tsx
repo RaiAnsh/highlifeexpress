@@ -3,6 +3,7 @@ import { SiteNav } from "@/components/SiteNav";
 import { Footer } from "@/components/Footer";
 import { ContactForm } from "@/components/ContactForm";
 import { getSiteSettings } from "@/lib/queries";
+import { parsePromoMessages } from "@/lib/marketing";
 
 export const dynamic = "force-dynamic";
 
@@ -11,7 +12,7 @@ export default async function ContactPage() {
 
   return (
     <>
-      <PromoBar />
+      <PromoBar messages={parsePromoMessages(settings.promo_messages)} />
       <SiteNav />
 
       <div className="page-hero">

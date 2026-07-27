@@ -42,6 +42,13 @@ const LINKS = [
     ),
   },
   {
+    href: "/admin/marketing",
+    label: "Marketing",
+    icon: (
+      <svg viewBox="0 0 24 24"><path d="m3 11 18-5v12L3 14v-3z" /><path d="M11.6 16.8a2 2 0 0 1-3.2 2.4L6 15" /></svg>
+    ),
+  },
+  {
     href: "/admin/settings",
     label: "Settings",
     icon: (

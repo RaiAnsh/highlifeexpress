@@ -48,7 +48,7 @@ const productInclude = {
 } as const;
 
 export async function getHomepageData() {
-  const [categories, newArrivals, bestSellers, promoSetting] = await Promise.all([
+  const [categories, newArrivals, bestSellers, settings] = await Promise.all([
     prisma.category.findMany({ where: { active: true }, orderBy: { sortOrder: "asc" } }),
     prisma.product.findMany({
       where: { active: true, featuredSection: "NEW_ARRIVALS" },
@@ -60,14 +60,15 @@ export async function getHomepageData() {
       orderBy: { sortOrder: "asc" },
       include: productInclude,
     }),
-    prisma.siteSetting.findUnique({ where: { key: "promotions_enabled" } }),
+    getSiteSettings(),
   ]);
 
   return {
     categories,
     newArrivals: newArrivals.map(toCardData),
     bestSellers: bestSellers.map(toCardData),
-    promotionsEnabled: promoSetting?.value === "true",
+    promotionsEnabled: settings.promotions_enabled === "true",
+    settings,
   };
 }
 

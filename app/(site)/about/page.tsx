@@ -1,13 +1,17 @@
 import { PromoBar } from "@/components/PromoBar";
 import { SiteNav } from "@/components/SiteNav";
 import { Footer } from "@/components/Footer";
+import { getSiteSettings } from "@/lib/queries";
+import { parsePromoMessages } from "@/lib/marketing";
 
 export const dynamic = "force-dynamic";
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const settings = await getSiteSettings();
+
   return (
     <>
-      <PromoBar />
+      <PromoBar messages={parsePromoMessages(settings.promo_messages)} />
       <SiteNav />
 
       <div className="page-hero">
