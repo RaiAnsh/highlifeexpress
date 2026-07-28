@@ -85,9 +85,22 @@ export function ShopHome({
     scrollTo(sectionId);
   }
 
+  function selectCategory(cat: string) {
+    setCurrentCategory(cat);
+    // The hero deal-banners only render on "Home" — once a specific category is
+    // chosen, jump straight to the (now banner-free) results instead of leaving
+    // the customer stuck behind the tall banner grid.
+    if (cat !== "all") {
+      requestAnimationFrame(() => scrollTo("results-top"));
+    } else {
+      scrollTo("cat-nav-anchor");
+    }
+  }
+
   return (
     <>
       {/* Category Nav */}
+      <div id="cat-nav-anchor" />
       <div className="cat-nav">
         {allCategories.map((cat) => (
           <a
@@ -96,7 +109,7 @@ export function ShopHome({
             className={`cat-item${currentCategory === cat.slug ? " active" : ""}`}
             onClick={(e) => {
               e.preventDefault();
-              setCurrentCategory(cat.slug);
+              selectCategory(cat.slug);
             }}
           >
             <CategoryIcon slug={cat.slug} />
@@ -111,8 +124,10 @@ export function ShopHome({
         </div>
       )}
 
-      {/* Deal Banners */}
-      {dealBanners.length > 0 && (
+      <div id="results-top" />
+
+      {/* Deal Banners — only shown on the unfiltered "Home" view so they don't bury filtered results */}
+      {currentCategory === "all" && dealBanners.length > 0 && (
         <div className="hero-grid">
           {dealBanners.map((banner, i) => {
             const variant = (i % 4) + 1;
