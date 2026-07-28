@@ -66,10 +66,11 @@ export function ReservationModal() {
           </div>
         ) : (
           <>
-            <h3>Request Delivery</h3>
+            <h3>Checkout</h3>
             <p className="reservation-subtitle">
-              This requests delivery for your items &mdash; no payment is taken online, payment
-              happens on delivery. We&apos;ll reach out to confirm details and timing.
+              Provide your delivery address and contact info to complete your order &mdash; no
+              payment is taken online, payment happens on delivery. We&apos;ll reach out to confirm
+              details and timing.
             </p>
             <form className="reservation-form" onSubmit={handleSubmit}>
               <div>

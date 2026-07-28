@@ -44,7 +44,7 @@ export function CartDrawer() {
             <span>{formatCents(cartSubtotalCents)}</span>
           </div>
           <button className="cart-checkout-btn" disabled={cart.length === 0} onClick={openReservationModal}>
-            Request Delivery
+            Checkout
           </button>
           <p className="cart-note">
             No payment is taken online. We&apos;ll contact you to confirm your order and delivery details.
