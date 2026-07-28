@@ -34,7 +34,7 @@ export function SiteNav({ showSearch = false }: { showSearch?: boolean }) {
     <nav>
       <div className="nav-logo">
         <Link href="/">
-          <img src="/assets/logo.png" alt="High Life Express" style={{ height: 88, width: "auto", display: "block" }} />
+          <img src="/assets/logo.png" alt="High Life Express" className="nav-logo-img" />
         </Link>
       </div>
       <ul className="nav-links">
