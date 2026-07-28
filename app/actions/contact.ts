@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { sendNotificationEmail } from "@/lib/email";
 
 const contactSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(200),
@@ -17,5 +18,14 @@ export async function submitContactMessage(input: unknown): Promise<ContactResul
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid message" };
   }
   await prisma.contactMessage.create({ data: parsed.data });
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "";
+  await sendNotificationEmail(
+    `New contact message \u2014 ${parsed.data.name}`,
+    `<p><strong>${parsed.data.name}</strong> (${parsed.data.email}) sent a message:</p>
+     <p>${parsed.data.message.replace(/\n/g, "<br>")}</p>
+     <p><a href="${siteUrl}/admin/messages">View in admin panel</a></p>`
+  );
+
   return { ok: true };
 }

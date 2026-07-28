@@ -3,6 +3,7 @@
 import { headers } from "next/headers";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { sendNotificationEmail } from "@/lib/email";
 
 const reservationItemSchema = z.object({
   productId: z.string(),
@@ -14,6 +15,7 @@ const reservationItemSchema = z.object({
 
 const reservationSchema = z.object({
   customerName: z.string().trim().min(1, "Name is required").max(200),
+  deliveryAddress: z.string().trim().min(5, "A delivery address is required").max(300),
   phone: z.string().trim().min(7, "A valid phone number is required").max(30),
   email: z.string().trim().email().optional().or(z.literal("")),
   preferredContact: z.string().trim().max(50).optional(),
@@ -43,6 +45,7 @@ export async function createReservation(input: unknown): Promise<ReservationResu
   const reservation = await prisma.reservation.create({
     data: {
       customerName: data.customerName,
+      deliveryAddress: data.deliveryAddress,
       phone: data.phone,
       email: data.email || null,
       preferredContact: data.preferredContact || null,
@@ -61,6 +64,20 @@ export async function createReservation(input: unknown): Promise<ReservationResu
       },
     },
   });
+
+  const itemsHtml = data.items
+    .map((i) => `<li>${i.qty} &times; ${i.name} (${i.priceLabel}) &mdash; $${((i.unitPriceCents * i.qty) / 100).toFixed(2)}</li>`)
+    .join("");
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "";
+  await sendNotificationEmail(
+    `New pickup request \u2014 ${data.customerName}`,
+    `<p><strong>${data.customerName}</strong> (${data.phone}${data.email ? `, ${data.email}` : ""}) submitted a pickup request.</p>
+     <ul>${itemsHtml}</ul>
+     <p><strong>Subtotal:</strong> $${(subtotalCents / 100).toFixed(2)}</p>
+     ${data.deliveryAddress ? `<p><strong>Address:</strong> ${data.deliveryAddress}</p>` : ""}
+     ${data.notes ? `<p><strong>Notes:</strong> ${data.notes}</p>` : ""}
+     <p><a href="${siteUrl}/admin/reservations/${reservation.id}">View in admin panel</a></p>`
+  );
 
   return { ok: true, reservationId: reservation.id };
 }
