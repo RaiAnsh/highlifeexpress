@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "High Life Express \u2013 Premium Cannabis Dispensary",
-  description: "Licensed Ontario cannabis dispensary. Serving Ontario, adults 19+ only.",
+  title: "High Life Express \u2013 Premium Cannabis Delivery",
+  description: "Licensed Ontario cannabis delivery service. Serving Ontario, adults 19+ only.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

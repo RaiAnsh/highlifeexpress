@@ -5,6 +5,13 @@ import { useTransition } from "react";
 import { updateReservationStatus } from "@/app/actions/admin-reservations";
 
 const STATUSES = ["NEW", "CONFIRMED", "READY_FOR_PICKUP", "COMPLETED", "CANCELLED"] as const;
+const STATUS_LABELS: Record<(typeof STATUSES)[number], string> = {
+  NEW: "New",
+  CONFIRMED: "Confirmed",
+  READY_FOR_PICKUP: "Out for Delivery",
+  COMPLETED: "Completed",
+  CANCELLED: "Cancelled",
+};
 
 export function ReservationStatusForm({ id, status }: { id: string; status: string }) {
   const router = useRouter();
@@ -20,7 +27,7 @@ export function ReservationStatusForm({ id, status }: { id: string; status: stri
   return (
     <select value={status} disabled={isPending} onChange={(e) => handleChange(e.target.value)} style={{ padding: 10, border: "1px solid var(--border)", borderRadius: 8, fontSize: 14 }}>
       {STATUSES.map((s) => (
-        <option key={s} value={s}>{s.replace(/_/g, " ")}</option>
+        <option key={s} value={s}>{STATUS_LABELS[s]}</option>
       ))}
     </select>
   );

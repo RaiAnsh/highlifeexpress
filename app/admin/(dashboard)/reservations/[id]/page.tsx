@@ -22,6 +22,7 @@ export default async function ReservationDetailPage({ params }: { params: Promis
       <div className="admin-card">
         <h2 style={{ fontFamily: "'Playfair Display', serif", color: "var(--purple)", marginBottom: 14 }}>Customer</h2>
         <p><strong>Name:</strong> {reservation.customerName}</p>
+        <p><strong>Delivery address:</strong> {reservation.deliveryAddress || "\u2014"}</p>
         <p><strong>Phone:</strong> {reservation.phone}</p>
         {reservation.email && <p><strong>Email:</strong> {reservation.email}</p>}
         {reservation.preferredContact && <p><strong>Preferred contact:</strong> {reservation.preferredContact}</p>}

@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 const STATUS_LABELS: Record<string, string> = {
   NEW: "New",
   CONFIRMED: "Confirmed",
-  READY_FOR_PICKUP: "Ready for Pickup",
+  READY_FOR_PICKUP: "Out for Delivery",
   COMPLETED: "Completed",
   CANCELLED: "Cancelled",
 };
@@ -34,6 +34,7 @@ export default async function AdminReservationsPage() {
             <thead>
               <tr>
                 <th>Customer</th>
+                <th>Address</th>
                 <th>Phone</th>
                 <th>Items</th>
                 <th>Subtotal</th>
@@ -46,6 +47,7 @@ export default async function AdminReservationsPage() {
               {reservations.map((r) => (
                 <tr key={r.id}>
                   <td>{r.customerName}</td>
+                  <td>{r.deliveryAddress || "\u2014"}</td>
                   <td>{r.phone}</td>
                   <td>{r.items.reduce((sum, i) => sum + i.qty, 0)}</td>
                   <td>${(r.subtotalCents / 100).toFixed(2)}</td>

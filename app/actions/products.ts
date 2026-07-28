@@ -111,6 +111,43 @@ export async function toggleProductActive(id: string, active: boolean): Promise<
   return { ok: true };
 }
 
+const quickPriceSchema = z.object({
+  prices: z
+    .array(
+      z.object({
+        id: z.string().trim().min(1),
+        priceCents: z.coerce.number().int().positive("Price must be greater than 0"),
+      })
+    )
+    .min(1),
+});
+
+export async function updateProductQuickPrices(productId: string, input: unknown): Promise<ActionResult> {
+  const parsed = quickPriceSchema.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+
+  const owned = await prisma.priceOption.findMany({
+    where: { id: { in: parsed.data.prices.map((p) => p.id) }, productId },
+    select: { id: true },
+  });
+  const ownedIds = new Set(owned.map((o) => o.id));
+  const updates = parsed.data.prices.filter((p) => ownedIds.has(p.id));
+  if (updates.length !== parsed.data.prices.length) {
+    return { ok: false, error: "One or more prices don't belong to this product" };
+  }
+
+  await prisma.$transaction(
+    updates.map((p) => prisma.priceOption.update({ where: { id: p.id }, data: { priceCents: p.priceCents } }))
+  );
+
+  revalidatePath("/admin/products");
+  revalidatePath(`/admin/products/${productId}/edit`);
+  revalidatePath("/");
+  return { ok: true, id: productId };
+}
+
 const photoSchema = z.object({
   url: z.string().trim().url("Enter a valid image URL"),
   altText: z.string().trim().max(200).optional(),

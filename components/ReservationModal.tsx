@@ -28,6 +28,7 @@ export function ReservationModal() {
     startTransition(async () => {
       const result = await createReservation({
         customerName: form.get("customerName"),
+        deliveryAddress: form.get("deliveryAddress"),
         phone: form.get("phone"),
         email: form.get("email") || undefined,
         preferredContact: form.get("preferredContact") || undefined,
@@ -56,24 +57,28 @@ export function ReservationModal() {
         {success ? (
           <div className="reservation-success">
             <svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" /></svg>
-            <h3>Reservation received!</h3>
+            <h3>Order received!</h3>
             <p>
-              We&apos;ll contact you shortly to confirm your order for in-store pickup. No payment
-              is taken online &mdash; all payment happens in person at pickup.
+              We&apos;ll contact you shortly to confirm your order and delivery details. No payment
+              is taken online &mdash; payment happens on delivery.
             </p>
             <button className="reservation-submit-btn" onClick={handleClose}>Close</button>
           </div>
         ) : (
           <>
-            <h3>Request Reservation</h3>
+            <h3>Request Delivery</h3>
             <p className="reservation-subtitle">
-              This reserves your items for in-store pickup &mdash; no payment is taken online.
-              We&apos;ll reach out to confirm details and timing.
+              This requests delivery for your items &mdash; no payment is taken online, payment
+              happens on delivery. We&apos;ll reach out to confirm details and timing.
             </p>
             <form className="reservation-form" onSubmit={handleSubmit}>
               <div>
                 <label htmlFor="customerName">Full name</label>
                 <input id="customerName" name="customerName" type="text" required />
+              </div>
+              <div>
+                <label htmlFor="deliveryAddress">Delivery address</label>
+                <input id="deliveryAddress" name="deliveryAddress" type="text" placeholder="Street address, city, postal code" required />
               </div>
               <div>
                 <label htmlFor="phone">Phone number</label>
@@ -109,7 +114,7 @@ export function ReservationModal() {
               <div className="reservation-form-actions">
                 <button type="button" className="reservation-cancel-btn" onClick={handleClose}>Cancel</button>
                 <button type="submit" className="reservation-submit-btn" disabled={isPending || cart.length === 0}>
-                  {isPending ? "Submitting..." : "Submit Reservation"}
+                  {isPending ? "Submitting..." : "Submit Order"}
                 </button>
               </div>
             </form>

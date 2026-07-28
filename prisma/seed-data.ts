@@ -11,7 +11,7 @@
 // SiteSetting is turned on (see lib/pricing.ts `isOnSale`).
 
 const FALLBACK_DESCRIPTION =
-  "Full details coming soon \u2014 message us in-store or online and we'll fill you in on this strain.";
+  "Full details coming soon \u2014 message us and we'll fill you in on this strain.";
 
 export type SeedPriceOption = { label: string; priceCents: number; compareAtPriceCents?: number };
 

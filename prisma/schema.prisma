@@ -97,6 +97,7 @@ enum ReservationStatus {
 model Reservation {
   id               String            @id @default(cuid())
   customerName     String
+  deliveryAddress  String            @default("")
   phone            String
   email            String?
   preferredContact String?

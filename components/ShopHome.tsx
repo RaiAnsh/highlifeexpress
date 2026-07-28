@@ -1,12 +1,19 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import dynamic from "next/dynamic";
 import { useSite } from "@/lib/site-context";
 import { isOnSale } from "@/lib/pricing";
 import { splitStrainLine, type DealBanner } from "@/lib/marketing";
 import { ProductCard } from "./ProductCard";
 import { CategoryIcon } from "./CategoryIcon";
 import type { ProductCardData } from "@/lib/types";
+
+// Leaflet touches `window` at import time, so it can only run client-side.
+const DeliveryMap = dynamic(() => import("./DeliveryMap").then((m) => m.DeliveryMap), {
+  ssr: false,
+  loading: () => <div className="delivery-map-loading">Loading map...</div>,
+});
 
 type Category = { slug: string; name: string };
 
@@ -22,7 +29,9 @@ function matches(product: ProductCardData, category: string, searchTerm: string,
     category === "all"
       ? true
       : category === "deals"
-        ? product.tags.includes("SALE") || isOnSale(product.priceOptions, promotionsEnabled)
+        ? product.tags.includes("SALE") ||
+          isOnSale(product.priceOptions, promotionsEnabled) ||
+          product.tags.some((t) => t.toUpperCase().startsWith("DEAL"))
         : category.startsWith("deal")
           ? product.tags.includes(category.toUpperCase())
           : product.categorySlug === category;
@@ -57,9 +66,10 @@ export function ShopHome({
     [bestSellers, currentCategory, searchTerm, promotionsEnabled]
   );
 
-  // Products without a real photo yet get a random strain photo borrowed from the
-  // pool of already-uploaded photos, re-rolled on every page load, so nothing shows
-  // a blank placeholder while real photography is pending.
+  // Products without a real photo yet get a strain photo borrowed from the pool of
+  // already-uploaded photos. The pick is deterministic (hashed from the product id)
+  // so server and client render the same src — a random pick here caused a hydration
+  // mismatch that broke React event handlers (e.g. category nav clicks) sitewide.
   const fallbackPhotos = useMemo(() => {
     const pool = [...newArrivals, ...bestSellers]
       .map((p) => p.imageUrl)
@@ -67,12 +77,15 @@ export function ShopHome({
     const map = new Map<string, string>();
     if (pool.length > 0) {
       [...newArrivals, ...bestSellers].forEach((p) => {
-        if (!p.imageUrl) map.set(p.id, pool[Math.floor(Math.random() * pool.length)]);
+        if (!p.imageUrl) {
+          let hash = 0;
+          for (let i = 0; i < p.id.length; i++) hash = (hash * 31 + p.id.charCodeAt(i)) >>> 0;
+          map.set(p.id, pool[hash % pool.length]);
+        }
       });
     }
     return map;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [newArrivals, bestSellers]);
 
   function withFallbackPhoto(product: ProductCardData): ProductCardData {
     return product.imageUrl ? product : { ...product, imageUrl: fallbackPhotos.get(product.id) ?? null };
@@ -187,7 +200,7 @@ export function ShopHome({
 
       {/* Promo Strip */}
       <div className="banner-strip">
-        <h2>Ready to shop? <span>Reserve online</span>, pick up in-store.</h2>
+        <h2>Ready to shop? <span>Order online</span>, delivered to your door.</h2>
         <button className="banner-cta" onClick={() => shopNow("new-arrivals", "all")}>SHOP NOW &rarr;</button>
       </div>
 
@@ -213,12 +226,7 @@ export function ShopHome({
         </div>
         <div className="delivery-grid">
           <div className="delivery-map">
-            <iframe
-              title="High Life Express delivery area map"
-              src="https://www.openstreetmap.org/export/embed.html?bbox=-80.2%2C43.55%2C-79.0%2C44.45&layer=mapnik&marker=44.05%2C-79.46"
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-            />
+            <DeliveryMap />
           </div>
           <div className="delivery-info">
             <ul className="delivery-locations">
@@ -233,6 +241,7 @@ export function ShopHome({
               <li>Aurora</li>
               <li>Richmond Hill</li>
               <li>North York</li>
+              <li>Toronto</li>
               <li>Mississauga</li>
               <li>Brampton</li>
               <li>Etobicoke</li>
@@ -251,8 +260,8 @@ export function ShopHome({
       <div className="trust-bar" id="trust">
         <div className="trust-item">
           <svg viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
-          <strong>Reserve &amp; Pick Up</strong>
-          <span>Reserve online, pay &amp; collect in-store</span>
+          <strong>Delivery Only</strong>
+          <span>Order online, delivered right to your door</span>
         </div>
         <div className="trust-item">
           <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="6" /><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11" /></svg>

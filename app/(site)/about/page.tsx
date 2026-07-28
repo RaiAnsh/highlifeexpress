@@ -16,13 +16,13 @@ export default async function AboutPage() {
 
       <div className="page-hero">
         <h1>About High Life Express</h1>
-        <p>Your licensed Ontario source for premium, hand-selected cannabis.</p>
+        <p>Premium, hand-selected cannabis.</p>
       </div>
 
       <div className="page-content">
         <h2>Our Story</h2>
         <p>
-          High Life Express is a licensed cannabis dispensary proudly serving Ontario. We&apos;re
+          High Life Express is a delivery service serving Ontario. We&apos;re
           passionate about connecting our customers with premium, hand-selected flower and products —
           sourced with quality and consistency in mind. Every strain in our catalog is chosen for its
           potency, flavor, and effect, so you always know what you&apos;re getting.
@@ -31,18 +31,18 @@ export default async function AboutPage() {
         <h2>Why Choose Us</h2>
         <div className="info-grid">
           <div className="info-card">
-            <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="6" /><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11" /></svg>
-            <strong>Licensed &amp; Legal</strong>
-            <span>Fully licensed cannabis dispensary operating in Ontario</span>
+            <svg viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
+            <strong>Delivery</strong>
+            <span>Fast and reliable</span>
           </div>
           <div className="info-card">
-            <svg viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
-            <strong>Reserve &amp; Pick Up</strong>
-            <span>Reserve online, pay &amp; collect in-store</span>
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="6" /><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11" /></svg>
+            <strong>Quality Products</strong>
+            <span>Quality flower, lowest price guaranteed, plus exclusive deals</span>
           </div>
           <div className="info-card">
             <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10" /><path d="M12 8v4l2 2" /></svg>
-            <strong>Fresh Drops Weekly</strong>
+            <strong>Fresh Drops</strong>
             <span>New strains and products added regularly</span>
           </div>
         </div>
