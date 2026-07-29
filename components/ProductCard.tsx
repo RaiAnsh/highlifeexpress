@@ -26,6 +26,12 @@ export function ProductCard({
 
   function handleAdd(e: React.MouseEvent) {
     e.stopPropagation();
+    // Multiple sizes (e.g. 14g vs 28g) at different prices — open the modal so the
+    // customer explicitly picks a size instead of silently defaulting to the first one.
+    if (product.priceOptions.length > 1) {
+      openProductModal(product);
+      return;
+    }
     const opt = primaryOption(product.priceOptions);
     if (!opt) return;
     addToCart({

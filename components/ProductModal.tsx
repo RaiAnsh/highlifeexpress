@@ -1,7 +1,8 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useSite } from "@/lib/site-context";
-import { fullPriceLabel, priceOptionLabel, primaryOption } from "@/lib/pricing";
+import { formatCents, fullPriceLabel, priceOptionLabel, primaryOption } from "@/lib/pricing";
 
 const STRAIN_BADGE: Record<string, { label: string; className: string }> = {
   INDICA: { label: "Indica", className: "badge-indica" },
@@ -11,12 +12,20 @@ const STRAIN_BADGE: Record<string, { label: string; className: string }> = {
 
 export function ProductModal() {
   const { activeProduct, closeProductModal, addToCart } = useSite();
+  const [selectedLabel, setSelectedLabel] = useState<string | null>(null);
+
+  // Reset the size selection whenever a different product is opened.
+  useEffect(() => {
+    setSelectedLabel(activeProduct ? primaryOption(activeProduct.priceOptions)?.label ?? null : null);
+  }, [activeProduct]);
+
   if (!activeProduct) return null;
   const strainBadge = STRAIN_BADGE[activeProduct.strainType];
+  const hasMultipleSizes = activeProduct.priceOptions.length > 1;
 
   function handleAdd() {
     if (!activeProduct) return;
-    const opt = primaryOption(activeProduct.priceOptions);
+    const opt = activeProduct.priceOptions.find((o) => o.label === selectedLabel) ?? primaryOption(activeProduct.priceOptions);
     if (!opt) return;
     addToCart({
       productId: activeProduct.id,
@@ -49,9 +58,28 @@ export function ProductModal() {
           <div className="product-name">{activeProduct.name}</div>
           <div className="product-effects">{activeProduct.effects.join(" \u00b7 ")}</div>
           <div className="product-modal-desc">{activeProduct.description}</div>
+          {hasMultipleSizes && (
+            <div className="size-picker">
+              <div className="size-picker-label">Choose a size</div>
+              <div className="size-picker-options">
+                {activeProduct.priceOptions.map((opt) => (
+                  <button
+                    key={opt.label}
+                    type="button"
+                    className={`size-pill${selectedLabel === opt.label ? " selected" : ""}`}
+                    onClick={() => setSelectedLabel(opt.label)}
+                  >
+                    {opt.label} {"\u2014"} {formatCents(opt.priceCents)}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
           <div className="product-modal-footer">
-            <span className="price">{fullPriceLabel(activeProduct.priceOptions)}</span>
-            <button className="add-to-cart-btn" onClick={handleAdd}>ADD TO CART</button>
+            {!hasMultipleSizes && <span className="price">{fullPriceLabel(activeProduct.priceOptions)}</span>}
+            <button className="add-to-cart-btn" onClick={handleAdd} disabled={hasMultipleSizes && !selectedLabel}>
+              ADD TO CART
+            </button>
           </div>
         </div>
       </div>
