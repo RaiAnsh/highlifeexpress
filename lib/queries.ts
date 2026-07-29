@@ -72,6 +72,15 @@ export async function getHomepageData() {
   };
 }
 
+export async function getProductsByTag(tag: string): Promise<ProductCardData[]> {
+  const products = await prisma.product.findMany({
+    where: { active: true, tags: { has: tag.toUpperCase() } },
+    orderBy: { sortOrder: "asc" },
+    include: productInclude,
+  });
+  return products.map(toCardData);
+}
+
 export async function getSiteSettings(): Promise<Record<string, string>> {
   const rows = await prisma.siteSetting.findMany();
   return Object.fromEntries(rows.map((r) => [r.key, r.value]));

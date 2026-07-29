@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { ReservationStatusForm } from "@/components/admin/ReservationStatusForm";
+import { formatTorontoDateTime } from "@/lib/format-date";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +15,7 @@ export default async function ReservationDetailPage({ params }: { params: Promis
       <div className="admin-header">
         <div>
           <h1>Reservation — {reservation.customerName}</h1>
-          <p>Submitted {reservation.createdAt.toLocaleString("en-CA", { dateStyle: "medium", timeStyle: "short" })}</p>
+          <p>Submitted {formatTorontoDateTime(reservation.createdAt)}</p>
         </div>
         <ReservationStatusForm id={reservation.id} status={reservation.status} />
       </div>

@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { MessageRow } from "@/components/admin/MessageRow";
+import { formatTorontoDateTime } from "@/lib/format-date";
 
 export const dynamic = "force-dynamic";
 
@@ -38,7 +39,7 @@ export default async function AdminMessagesPage() {
                   name={m.name}
                   email={m.email}
                   message={m.message}
-                  createdAt={m.createdAt.toLocaleString("en-CA", { dateStyle: "medium", timeStyle: "short" })}
+                  createdAt={formatTorontoDateTime(m.createdAt)}
                   handled={m.handled}
                 />
               ))}

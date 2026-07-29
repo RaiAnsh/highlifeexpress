@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
 import { useSite } from "@/lib/site-context";
 import { isOnSale } from "@/lib/pricing";
 import { splitStrainLine, type DealBanner } from "@/lib/marketing";
@@ -53,6 +54,7 @@ export function ShopHome({
   dealBanners: DealBanner[];
 }) {
   const { searchTerm } = useSite();
+  const router = useRouter();
   const [currentCategory, setCurrentCategory] = useState("all");
 
   const allCategories = [...VIRTUAL_CATEGORIES, ...categories, DEALS_CATEGORY];
@@ -173,7 +175,14 @@ export function ShopHome({
                     ))}
                   </div>
                 )}
-                <button className={`hero-btn hero-btn-${variant}`} onClick={() => shopNow("new-arrivals", banner.dealTag || "all")}>
+                <button
+                  className={`hero-btn hero-btn-${variant}`}
+                  onClick={() =>
+                    banner.dealTag && banner.strainCount > 0 && banner.flatPriceCents > 0
+                      ? router.push(`/deals/${banner.dealTag}`)
+                      : shopNow("new-arrivals", banner.dealTag || "all")
+                  }
+                >
                   {banner.buttonLabel || "Shop Now"}
                   <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
                 </button>

@@ -59,6 +59,9 @@ type BannerFormRow = {
   badgesText: string;
   buttonLabel: string;
   dealTag: string;
+  strainCount: string;
+  flatPriceDollars: string;
+  freeItemsText: string;
 };
 
 function toFormRow(b: DealBanner): BannerFormRow {
@@ -72,6 +75,9 @@ function toFormRow(b: DealBanner): BannerFormRow {
     badgesText: b.badges.join(", "),
     buttonLabel: b.buttonLabel,
     dealTag: b.dealTag,
+    strainCount: b.strainCount ? String(b.strainCount) : "",
+    flatPriceDollars: b.flatPriceCents ? (b.flatPriceCents / 100).toString() : "",
+    freeItemsText: (b.freeItems ?? []).join(", "),
   };
 }
 
@@ -85,6 +91,9 @@ const EMPTY_ROW: BannerFormRow = {
   badgesText: "Quality BUDS, Free Delivery, Cash & e-Transfer",
   buttonLabel: "Shop Now",
   dealTag: "",
+  strainCount: "",
+  flatPriceDollars: "",
+  freeItemsText: "",
 };
 
 export function DealBannersForm({ initial }: { initial: DealBanner[] }) {
@@ -126,6 +135,12 @@ export function DealBannersForm({ initial }: { initial: DealBanner[] }) {
         .filter(Boolean),
       buttonLabel: r.buttonLabel,
       dealTag: r.dealTag,
+      strainCount: parseInt(r.strainCount, 10) || 0,
+      flatPriceCents: Math.round((parseFloat(r.flatPriceDollars) || 0) * 100),
+      freeItems: r.freeItemsText
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean),
     }));
     startTransition(async () => {
       const result = await updateDealBanners(banners);
@@ -202,6 +217,43 @@ export function DealBannersForm({ initial }: { initial: DealBanner[] }) {
             <label>Badges (comma-separated)</label>
             <input value={row.badgesText} onChange={(e) => update(i, "badgesText", e.target.value)} />
           </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, marginTop: 16 }}>
+            <div>
+              <label>Strains to Pick</label>
+              <input
+                type="number"
+                min="0"
+                placeholder="3"
+                value={row.strainCount}
+                onChange={(e) => update(i, "strainCount", e.target.value)}
+              />
+            </div>
+            <div>
+              <label>Flat Bundle Price ($)</label>
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="140"
+                value={row.flatPriceDollars}
+                onChange={(e) => update(i, "flatPriceDollars", e.target.value)}
+              />
+            </div>
+            <div>
+              <label>Free Items (comma-separated)</label>
+              <input
+                placeholder="14g flower FREE, 6pc edible FREE"
+                value={row.freeItemsText}
+                onChange={(e) => update(i, "freeItemsText", e.target.value)}
+              />
+            </div>
+          </div>
+          <p className="field-hint">
+            If &quot;Strains to Pick&quot; and &quot;Flat Bundle Price&quot; are both set, Shop Now opens a page
+            where the customer picks that many strains from products tagged with this deal, then adds the whole
+            bundle to their cart at the flat price. Leave both blank to just filter to the deal&apos;s products
+            without a special price.
+          </p>
         </div>
       ))}
 

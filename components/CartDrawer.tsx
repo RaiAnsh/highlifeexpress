@@ -28,9 +28,9 @@ export function CartDrawer() {
                   <div className="cart-item-name">{item.name}</div>
                   <div className="cart-item-price">{item.priceLabel}</div>
                   <div className="cart-qty">
-                    <button onClick={() => changeQty(item.productId, -1)}>&minus;</button>
+                    <button onClick={() => changeQty(item.productId, -1)}>{"\u2212"}</button>
                     <span>{item.qty}</span>
-                    <button onClick={() => changeQty(item.productId, 1)}>&plus;</button>
+                    <button onClick={() => changeQty(item.productId, 1)}>+</button>
                     <button className="cart-remove" onClick={() => removeFromCart(item.productId)}>Remove</button>
                   </div>
                 </div>

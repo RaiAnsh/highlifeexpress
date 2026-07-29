@@ -250,6 +250,19 @@ nav {
   letter-spacing: 0.5px; transition: background 0.2s;
 }
 .add-btn:hover { background: var(--purple-dark); }
+.add-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ── DEAL BUILDER ── */
+.deal-builder-header { margin-bottom: 1.75rem; }
+.deal-builder-header h1 { font-family: 'Playfair Display', serif; font-size: 30px; font-weight: 800; color: var(--text-dark); margin: 14px 0 4px; }
+.deal-builder-free { color: var(--purple); font-weight: 700; font-size: 14px; }
+.deal-builder-progress { font-weight: 700; color: var(--text-dark); margin-top: 10px; }
+.deal-pick-card.selected { border: 2px solid var(--purple); box-shadow: 0 8px 24px rgba(74,18,114,0.18); }
+.deal-pick-card.disabled { opacity: 0.45; cursor: not-allowed; }
+.deal-pick-card.disabled:hover { transform: none; box-shadow: none; }
+.deal-builder-footer { margin-top: 2rem; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.deal-builder-footer .hero-btn { justify-content: center; width: 100%; max-width: 420px; padding: 16px; border-radius: 12px; background: var(--purple); font-size: 15px; }
+.deal-builder-footer .hero-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* ── BANNER STRIP ── */
 .banner-strip {

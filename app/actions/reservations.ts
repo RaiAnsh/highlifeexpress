@@ -54,8 +54,12 @@ export async function createReservation(input: unknown): Promise<ReservationResu
       ageAttested: true,
       ipAddress,
       items: {
+        // Deal-bundle cart lines use a synthetic "deal:<tag>:<ids>" productId (see
+        // DealBuilder) that doesn't reference a real Product row — store those as
+        // null so the foreign key doesn't reject the insert. The bundle's full
+        // description (strain names, free items) is already in productNameSnap.
         create: data.items.map((item) => ({
-          productId: item.productId,
+          productId: item.productId.startsWith("deal:") ? null : item.productId,
           productNameSnap: item.name,
           priceLabelSnap: item.priceLabel,
           unitPriceCentsSnap: item.unitPriceCents,

@@ -43,6 +43,9 @@ const dealBannerSchema = z.object({
     .max(60)
     .regex(/^[a-z0-9]*$/, "Deal tag must be lowercase letters/numbers only, no spaces")
     .default(""),
+  strainCount: z.number().int().nonnegative().max(20).default(0),
+  flatPriceCents: z.number().int().nonnegative().default(0),
+  freeItems: z.array(z.string().trim().max(100)).default([]),
 });
 
 const dealBannersSchema = z.array(dealBannerSchema).max(8, "Keep it to 8 banners or fewer");

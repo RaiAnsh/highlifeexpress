@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { formatTorontoDateTime } from "@/lib/format-date";
 
 export const dynamic = "force-dynamic";
 
@@ -54,7 +55,7 @@ export default async function AdminReservationsPage() {
                   <td>
                     <span className={`admin-badge status-${r.status.toLowerCase()}`}>{STATUS_LABELS[r.status]}</span>
                   </td>
-                  <td>{r.createdAt.toLocaleString("en-CA", { dateStyle: "medium", timeStyle: "short" })}</td>
+                  <td>{formatTorontoDateTime(r.createdAt)}</td>
                   <td className="actions">
                     <Link className="admin-btn secondary" href={`/admin/reservations/${r.id}`}>View</Link>
                   </td>
