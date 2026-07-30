@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { cloudinary, CLOUDINARY_FOLDER } from "@/lib/cloudinary";
 
 const priceOptionSchema = z.object({
   label: z.string().trim().min(1, "Price label is required").max(50),
@@ -148,23 +149,37 @@ export async function updateProductQuickPrices(productId: string, input: unknown
   return { ok: true, id: productId };
 }
 
-const photoSchema = z.object({
-  url: z.string().trim().url("Enter a valid image URL"),
-  altText: z.string().trim().max(200).optional(),
-});
+const MAX_PHOTO_BYTES = 8 * 1024 * 1024;
 
-export async function addProductPhoto(productId: string, input: unknown): Promise<ActionResult> {
-  const parsed = photoSchema.safeParse(input);
-  if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+export async function uploadProductPhoto(productId: string, formData: FormData): Promise<ActionResult> {
+  const file = formData.get("file");
+  if (!(file instanceof File) || file.size === 0) {
+    return { ok: false, error: "Choose a photo to upload" };
   }
+  if (!file.type.startsWith("image/")) {
+    return { ok: false, error: "File must be an image" };
+  }
+  if (file.size > MAX_PHOTO_BYTES) {
+    return { ok: false, error: "Image must be under 8MB" };
+  }
+
+  const buffer = Buffer.from(await file.arrayBuffer());
+  const dataUri = `data:${file.type};base64,${buffer.toString("base64")}`;
+
+  let uploaded;
+  try {
+    uploaded = await cloudinary.uploader.upload(dataUri, { folder: CLOUDINARY_FOLDER });
+  } catch (err) {
+    console.error("Cloudinary upload failed:", err);
+    return { ok: false, error: "Upload failed — please try again" };
+  }
+
   const existingCount = await prisma.productPhoto.count({ where: { productId } });
   await prisma.productPhoto.create({
     data: {
       productId,
-      url: parsed.data.url,
-      publicId: parsed.data.url,
-      altText: parsed.data.altText ?? null,
+      url: uploaded.secure_url,
+      publicId: uploaded.public_id,
       isPrimary: existingCount === 0,
       sortOrder: existingCount,
     },
@@ -175,6 +190,16 @@ export async function addProductPhoto(productId: string, input: unknown): Promis
 }
 
 export async function deleteProductPhoto(photoId: string, productId: string): Promise<ActionResult> {
+  const photo = await prisma.productPhoto.findUnique({ where: { id: photoId } });
+  if (photo?.publicId) {
+    try {
+      await cloudinary.uploader.destroy(photo.publicId);
+    } catch (err) {
+      // Older photos added via URL paste have publicId set to the raw URL, not a
+      // real Cloudinary public ID — destroy() will no-op/fail harmlessly for those.
+      console.error("Cloudinary delete failed:", err);
+    }
+  }
   await prisma.productPhoto.delete({ where: { id: photoId } });
   revalidatePath(`/admin/products/${productId}/edit`);
   revalidatePath("/");

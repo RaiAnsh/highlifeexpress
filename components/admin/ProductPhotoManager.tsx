@@ -1,28 +1,31 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
-import { addProductPhoto, deleteProductPhoto, setPrimaryPhoto } from "@/app/actions/products";
+import { useRef, useState, useTransition } from "react";
+import { uploadProductPhoto, deleteProductPhoto, setPrimaryPhoto } from "@/app/actions/products";
 
 type Photo = { id: string; url: string; altText: string | null; isPrimary: boolean };
 
 export function ProductPhotoManager({ productId, photos }: { productId: string; photos: Photo[] }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const [url, setUrl] = useState("");
   const [error, setError] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  function handleAdd(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
     setError("");
+    const formData = new FormData();
+    formData.set("file", file);
     startTransition(async () => {
-      const result = await addProductPhoto(productId, { url });
+      const result = await uploadProductPhoto(productId, formData);
       if (result.ok) {
-        setUrl("");
         router.refresh();
       } else {
         setError(result.error);
       }
+      if (fileInputRef.current) fileInputRef.current.value = "";
     });
   }
 
@@ -61,20 +64,19 @@ export function ProductPhotoManager({ productId, photos }: { productId: string; 
           </div>
         ))}
       </div>
-      <form onSubmit={handleAdd} style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
         <input
-          type="text"
-          placeholder="Image URL (https://...)"
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          required
-          style={{ flex: 1, minWidth: 240, padding: 10, border: "1px solid var(--border)", borderRadius: 8 }}
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleFileChange}
+          disabled={isPending}
         />
-        <button type="submit" className="admin-btn" disabled={isPending}>Add Photo</button>
-      </form>
+        {isPending && <span className="field-hint">Uploading...</span>}
+      </div>
       {error && <p className="admin-error-banner" style={{ marginTop: 10 }}>{error}</p>}
       <p className="field-hint" style={{ marginTop: 10 }}>
-        Paste a hosted image URL for now. Cloudinary direct-upload will replace this once the client's Cloudinary account is connected.
+        Choose a photo from your camera roll or files — it uploads straight to Cloudinary.
       </p>
     </div>
   );
